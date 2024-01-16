@@ -35,7 +35,7 @@ struct iovec;
 	_( CONN,        "^CONN",        "^CONN:") \
 	_( CPIN,        "+CPIN",        "+CPIN:") \
 \
-	_( CREG,        "+CEREG",        "+CEREG:") \
+	_( CREG,        "+C5GREG",        "+C5GREG:") \
 	_( CSQ,         "+CSQ",         "+CSQ:") \
 	_( CSSI,        "+CSSI",        "+CSSI:") \
 	_( CSSU,        "+CSSU",        "+CSSU:") \
