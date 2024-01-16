@@ -667,7 +667,7 @@ EXPORT_DEF int pdu_parse_sca(uint8_t *pdu, size_t pdu_length, char *sca, size_t 
 {
 	int i = 0;
 	int sca_digits = (pdu[i++] - 1) * 2;
-	int field_len = pdu_parse_number(pdu + i, pdu_length - i, sca_digits, sca, sca_len);
+		int field_len = pdu_parse_number(pdu + i, pdu_length - i, sca_digits, sca, sca_len);
 	if (field_len <= 0) {
 		chan_quectel_err = E_INVALID_SCA;
 		return -1;
@@ -935,8 +935,9 @@ EXPORT_DEF int tpdu_parse_deliver(uint8_t *pdu, size_t pdu_length, int tpdu_type
 		i += udhl;
 	}
 
-	int msg_len = pdu_length - i, out_len = 0;
-	char hexbuf[4096];
+	// ignore <CR><LF><CR><LF>
+	int msg_len = pdu_length - i - 2, out_len = 0;
+	// char hexbuf[4096];
 	int is_ucs = 1;
 	switch(alphabet) {
 		case PDU_DCS_ALPHABET_7BIT:
@@ -955,7 +956,7 @@ EXPORT_DEF int tpdu_parse_deliver(uint8_t *pdu, size_t pdu_length, int tpdu_type
 		default:
 			out_len = msg_len / 2;
 			memcpy((char*)msg, pdu + i, msg_len);
-			msg[out_len] = '\0';
+			// msg[out_len] = '\0';
 			break;
 	}
 
@@ -965,7 +966,7 @@ EXPORT_DEF int tpdu_parse_deliver(uint8_t *pdu, size_t pdu_length, int tpdu_type
 		memcpy((char*)msg16_tmp, msg, msg_len);
 		msg16_tmp[msg_len] = '\0';
 		ast_verb (10, "tpdu_parse_deliver: ucs2_to_utf8 call (\"\\x%x\\x%x\\x%x\\x%x\\x%x\\x%x\\x%x\\x%x\",%d,*,%d)", msg16_tmp[0], msg16_tmp[1], msg16_tmp[2], msg16_tmp[3], msg16_tmp[4], msg16_tmp[5], msg16_tmp[6], msg16_tmp[7], msg_len, out_len);
-		res = ucs2_to_utf8(msg16_tmp, out_len, msg, out_len+1);
+		res = ucs2_to_utf8(msg16_tmp, out_len, msg, out_len);
 		ast_verb (10, "tpdu_parse_deliver: ucs2_to_utf8 done (%d) %d", res);
 		if (res < 0) {
 			chan_quectel_err = E_PARSE_UCS2;

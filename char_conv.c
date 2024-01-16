@@ -76,7 +76,7 @@ EXPORT_DEF ssize_t utf8_to_ucs2(const char *in, size_t in_length, uint16_t *out,
 }
 EXPORT_DEF ssize_t ucs2_to_utf8(const uint16_t *in, size_t in_length, char *out, size_t out_size)
 {
-	return convert_string((const char*)in, in_length * 2, out, out_size, "UTF-16BE", "UTF-8");
+	return convert_string((const char*)in, in_length * 2, out, out_size * 3, "UTF-16BE", "UTF-8");
 }
 
 

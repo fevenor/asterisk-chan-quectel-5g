@@ -375,7 +375,7 @@ EXPORT_DEF int at_parse_cmgr(char *str, size_t len, int *tpdu_type, char *sca, s
 	char *marks[STRLEN(delimiters)];
 	char *end;
 	size_t tpdu_length;
-	int16_t msg16_tmp[256];
+	// int16_t msg16_tmp[256];
 
 	if (mark_line(str, delimiters, marks) != ITEMS_OF(marks)) {
 		chan_quectel_err = E_PARSE_CMGR_LINE;
@@ -387,7 +387,8 @@ EXPORT_DEF int at_parse_cmgr(char *str, size_t len, int *tpdu_type, char *sca, s
 	}
 	str = marks[2] + 1;
 
-	int pdu_length = (unhex(str, str) + 1) / 2;
+	// there is <CR><LF><CR><LF>
+	int pdu_length = (unhex(str, str) + 1) / 2 + 2;
 	if (pdu_length < 0) {
 		chan_quectel_err = E_MALFORMED_HEXSTR;
 		return -1;
@@ -418,16 +419,16 @@ EXPORT_DEF int at_parse_cmgr(char *str, size_t len, int *tpdu_type, char *sca, s
 		}
 		break;
 	case PDUTYPE_MTI_SMS_DELIVER:
-		res = tpdu_parse_deliver(str + i, pdu_length - i, *tpdu_type, oa, oa_len, scts, msg16_tmp, udh);
+		res = tpdu_parse_deliver(str + i, pdu_length - i, *tpdu_type, oa, oa_len, scts, msg, udh);
 		if (res < 0) {
 			/* tpdu_parse_deliver sets chan_quectel_err */
 			return -1;
 		}
-		res = ucs2_to_utf8(msg16_tmp, res, msg, *msg_len);
-		if (res < 0) {
-			chan_quectel_err = E_PARSE_UCS2;
-			return -1;
-		}
+		// res = ucs2_to_utf8(msg16_tmp, res, msg, res);
+		// if (res < 0) {
+		// 	chan_quectel_err = E_PARSE_UCS2;
+		// 	return -1;
+		// }
 		*msg_len = res;
 		msg[res] = '\0';
 		break;
@@ -481,7 +482,7 @@ EXPORT_DEF int at_parse_cmt(char *str, size_t len, int *tpdu_type, char *sca, si
 	char *marks[STRLEN(delimiters)];
 	char *end;
 	size_t tpdu_length;
-	int16_t msg16_tmp[256];
+	// int16_t msg16_tmp[256];
 
 	if (mark_line(str, delimiters, marks) != ITEMS_OF(marks)) {
 		chan_quectel_err = E_PARSE_CMT_LINE;
@@ -497,7 +498,8 @@ EXPORT_DEF int at_parse_cmt(char *str, size_t len, int *tpdu_type, char *sca, si
 	str = marks[1] + 1;
 	fprintf(stderr, "\r\nat_parse_cmt: str (%s)", str);
 
-	int pdu_length = (unhex(str, str) + 1) / 2;
+	// there is <CR><LF><CR><LF>
+	int pdu_length = (unhex(str, str) + 1) / 2 + 2;
 	if (pdu_length < 0) {
 		chan_quectel_err = E_MALFORMED_HEXSTR;
 		fprintf(stderr, "\r\nat_parse_cmt: E_MALFORMED_HEXSTR");
