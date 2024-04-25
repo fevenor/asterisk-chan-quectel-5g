@@ -339,6 +339,7 @@ EXPORT_DEF int at_parse_cdsi (const char* str)
 
 EXPORT_DEF int at_parse_cmgr(char *str, size_t len, int *tpdu_type, char *sca, size_t sca_len, char *oa, size_t oa_len, char *scts, int *mr, int *st, char *dt, char *msg, size_t *msg_len, pdu_udh_t *udh)
 {
+	fprintf(stderr, "\r\nat_parse_cmgr: [%*s]\n", len, str);
 	/* skip "+CMGR:" */
 	str += 6;
 	len -= 6;
@@ -452,7 +453,7 @@ EXPORT_DEF int at_parse_cmgr(char *str, size_t len, int *tpdu_type, char *sca, s
 
 EXPORT_DEF int at_parse_cmt(char *str, size_t len, int *tpdu_type, char *sca, size_t sca_len, char *oa, size_t oa_len, char *scts, int *mr, int *st, char *dt, char *msg, size_t *msg_len, pdu_udh_t *udh)
 {
-	fprintf(stderr, "\r\nat_parse_cmt: \"%*s\"", len, str);
+	fprintf(stderr, "\r\nat_parse_cmt: [%*s]", len, str);
 	/* skip "+CMT:" */
 	str += 5;
 	len -= 5;
@@ -498,8 +499,7 @@ EXPORT_DEF int at_parse_cmt(char *str, size_t len, int *tpdu_type, char *sca, si
 	str = marks[1] + 1;
 	fprintf(stderr, "\r\nat_parse_cmt: str (%s)", str);
 
-	// there is <CR><LF><CR><LF>
-	int pdu_length = (unhex(str, str) + 1) / 2 + 2;
+	int pdu_length = (unhex(str, str) + 1) / 2;
 	if (pdu_length < 0) {
 		chan_quectel_err = E_MALFORMED_HEXSTR;
 		fprintf(stderr, "\r\nat_parse_cmt: E_MALFORMED_HEXSTR");
@@ -514,7 +514,7 @@ EXPORT_DEF int at_parse_cmt(char *str, size_t len, int *tpdu_type, char *sca, si
 		return -1;
 	}
 	i += res;
-	if (tpdu_length > pdu_length - i) {
+	if (tpdu_length > pdu_length - i + 1) {
 		chan_quectel_err = E_INVALID_TPDU_LENGTH;
 		return -1;
 	}
@@ -538,7 +538,7 @@ EXPORT_DEF int at_parse_cmt(char *str, size_t len, int *tpdu_type, char *sca, si
 	case PDUTYPE_MTI_SMS_DELIVER:
 		fprintf(stderr, "\r\nat_parse_cmt: PDUTYPE_MTI_SMS_DELIVER");
 		fprintf(stderr, "\r\nat_parse_cmt: tpdu_parse_deliver call (?, %d, PDUTYPE_MTI_SMS_DELIVER) at %d", pdu_length - i, i);
-		res = tpdu_parse_deliver(str + i, pdu_length - i, *tpdu_type, oa, oa_len, scts, msg, udh);
+		res = tpdu_parse_deliver(str + i, pdu_length - i + 1, *tpdu_type, oa, oa_len, scts, msg, udh);
 		fprintf(stderr, "\r\nat_parse_cmt: tpdu_parse_deliver done (%d)", res);
 		if (res < 0) {
 			/* tpdu_parse_deliver sets chan_quectel_err */
